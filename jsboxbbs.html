@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>脚本安装</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        img {
+            max-width: 95%;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .postBody {
+            margin-bottom: 70px;
+        }
+
+        #floatingBtn {
+            width: 100%;
+            height: 60px;
+            position: fixed;
+            bottom: 0px;
+            right: 0px;
+            background-color: #313131;
+            display: flex;
+            justify-content: center;
+        }
+
+        #floatingBtn a {
+            text-decoration: none;
+            color: #fff;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="postBody" v-html="bodyCode"></div>
+        <div v-if="installURL" id="floatingBtn"><a v-bind:href="installURL">立即安装此脚本</a></div>
+    </div>
+</body>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            bodyCode: "Loading...",
+            installURL: ""
+        },
+        methods: {
+            getParams: function() {
+                return this.$route.params;
+            }
+        }
+    })
+
+    axios({
+        method: 'get',
+        url: "https://jsboxbbs.com/d/290-lhie1",
+        header: {
+            "Access-Control-Allow-Origin": "*"
+        }
+    }).then(resp => {
+        return getHTML(resp.data)
+    }).then(res => {
+        app.bodyCode = res.postBody;
+        app.installURL = `jsbox://install?url=${res.installurl}`;
+    })
+
+    async function getHTML(html) {
+        let postBodyReg = /<div class="Post-body">([\s\S]+?)<\/div>/;
+        let installURLReg = /url=(https?:\/\/(?!xteko).*?)(?:"|$|&)/;
+        let postBodyMatcher = html.match(postBodyReg);
+        let installURL;
+        if (postBodyMatcher && postBodyMatcher[1]) {
+            postBody = postBodyMatcher[1];
+            let installURLMatcher = postBody.match(installURLReg);
+            installURL = installURLMatcher[1];
+        }
+        return {
+            rawBody: html,
+            postBody: postBody,
+            installurl: installURL
+        }
+    }
+
+</script>
+
+</html>
