@@ -70,7 +70,7 @@
         return getHTML(resp.data)
     }).then(res => {
         app.bodyCode = res.postBody;
-        app.installURL = `jsbox://install?url=${res.installurl}`;
+        app.installURL = `jsbox://import?url=${res.installurl}`;
     })
 
     async function getHTML(html) {
